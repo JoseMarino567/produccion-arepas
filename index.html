@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Proceso de Arepas - Mejorado</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --color-success: #4CAF50;
+      --color-warning: #FF9800;
+      --color-danger: #F44336;
+      --color-info: #2196F3;
+      --color-light: #f8f9fa;
+      --color-dark: #212529;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--color-light);
+      transition: background-color 0.3s;
+    }
+    
+    .app-container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: white;
+      min-height: 100vh;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    /* COLORES POR SECCIÓN */
+    #cocinar-screen {
+      --color-primario: var(--color-success);
+      --color-secundario: #E8F5E9;
+    }
+    
+    #formado-screen {
+      --color-primario: var(--color-warning);
+      --color-secundario: #FFF3E0;
+    }
+    
+    #empaque-screen {
+      --color-primario: var(--color-danger);
+      --color-secundario: #FFEBEE;
+    }
+    
+    #historico-screen {
+      --color-primario: var(--color-info);
+      --color-secundario: #E3F2FD;
+    }
+    
+    .app-bar {
+      background: var(--color-primario);
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.3s;
+    }
+    
+    .app-title {
+      flex: 1;
+    }
+    
+    .theme-toggle {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    
+    .screen {
+      padding: 15px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .screen.active {
+      display: block;
+    }
+    
+    .section-title {
+      color: var(--color-primario);
+      border-bottom: 2px solid var(--color-primario);
+      padding-bottom: 6px;
+      margin-top: 15px;
+      font-size: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .input-group {
+      margin-bottom: 15px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #555;
+      font-size: 14px;
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 14px;
+      transition: border 0.3s;
+    }
+    
+    input:focus, select:focus {
+      border-color: var(--color-primario);
+      outline: none;
+    }
+    
+    .button-group {
+      display: flex;
+      justify-content: space-between;
+      margin: 20px 0;
+      gap: 10px;
+    }
+    
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      background: var(--color-primario);
+      color: white;
+      font-weight: 500;
+      cursor: pointer;
+      font-size: 14px;
+      flex: 1;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    
+    button:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    button:disabled {
+      background: #cccccc !important;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+    
+    .time-info {
+      background: var(--color-secundario);
+      padding: 12px;
+      border-radius: 4px;
+      margin-top: 15px;
+      border-left: 3px solid var(--color-primario);
+      font-size: 13px;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    .time-row {
+      display: flex;
+      margin-bottom: 5px;
+    }
+    
+    .time-label {
+      font-weight: 500;
+      width: 100px;
+      color: #555;
+    }
+    
+    .time-value {
+      flex-grow: 1;
+    }
+    
+    .nav-bar {
+      display: flex;
+      justify-content: space-around;
+      background: white;
+      padding: 8px 0;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
+      z-index: 100;
+    }
+    
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 5px 10px;
+      color: #777;
+      cursor: pointer;
+      font-size: 12px;
+      border-radius: 4px;
+      transition: all 0.3s;
+    }
+    
+    .nav-item.active {
+      color: var(--color-primario);
+      font-weight: 500;
+      transform: translateY(-3px);
+    }
+    
+    .nav-icon {
+      font-size: 20px;
+      margin-bottom: 3px;
+    }
+    
+    .content {
+      padding-bottom: 70px;
+    }
+    
+    .producto-item {
+      background: white;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      border: 1px solid #eee;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .export-btn {
+      margin-top: 15px;
+      background: var(--color-info);
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+    }
+    
+    .btn-success {
+      background: var(--color-success);
+    }
+    
+    .btn-warning {
+      background: var(--color-warning);
+    }
+    
+    .btn-danger {
+      background: var(--color-danger);
+    }
+    
+    .ollas-disponibles {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #666;
+    }
+    
+    .olla-usada {
+      text-decoration: line-through;
+      color: #999;
+    }
+    
+    .olla-disponible {
+      font-weight: bold;
+      color: var(--color-success);
+      cursor: pointer;
+    }
+    
+    .olla-disponible:hover {
+      text-decoration: underline;
+    }
+    
+    /* Histórico */
+    .registro-item {
+      background: white;
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      border-left: 4px solid var(--color-info);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .registro-header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: var(--color-info);
+    }
+    
+    .registro-detail {
+      display: flex;
+      margin-bottom: 3px;
+      font-size: 13px;
+    }
+    
+    .registro-label {
+      min-width: 100px;
+      color: #666;
+    }
+    
+    .search-container {
+      margin-bottom: 15px;
+    }
+    
+    .filters {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .filter-select {
+      flex: 1;
+    }
+    
+    /* Notificaciones */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--color-success);
+      color: white;
+      padding: 15px;
+      border-radius: 4px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      z-index: 1000;
+      animation: slideInRight 0.3s ease, fadeOut 0.5s ease 3s forwards;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    @keyframes slideInRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes fadeOut {
+      to { opacity: 0; }
+    }
+    
+    .notification.error {
+      background: var(--color-danger);
+    }
+    
+    .notification.warning {
+      background: var(--color-warning);
+    }
+    
+    /* Modo oscuro */
+    body.dark-mode {
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+    
+    body.dark-mode .app-container {
+      background: #1e1e1e;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    
+    body.dark-mode .producto-item,
+    body.dark-mode .registro-item {
+      background: #2d2d2d;
+      border-color: #333;
+      color: #e0e0e0;
+    }
+    
+    body.dark-mode input,
+    body.dark-mode select {
+      background: #2d2d2d;
+      border-color: #444;
+      color: #e0e0e0;
+    }
+    
+    body.dark-mode label {
+      color: #bbb;
+    }
+    
+    body.dark-mode .time-info {
+      background: #2d2d2d;
+      border-color: var(--color-primario);
+    }
+    
+    body.dark-mode .time-label,
+    body.dark-mode .registro-label {
+      color: #bbb;
+    }
+    
+    body.dark-mode .nav-bar {
+      background: #1e1e1e;
+      box-shadow: 0 -1px 5px rgba(0,0,0,0.5);
+    }
+    
+    body.dark-mode .nav-item {
+      color: #bbb;
+    }
+    
+    /* Animación de carga */
+    .loader {
+      display: none;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid var(--color-primario);
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      margin-left: 10px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 400px) {
+      .button-group {
+        flex-direction: column;
+      }
+      
+      .filters {
+        flex-direction: column;
+      }
+    }
+  </style>
+  <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <div class="app-bar">
+      <button class="theme-toggle" id="theme-toggle"><i class="fas fa-moon"></i></button>
+      <div class="app-title">Proceso de Arepas</div>
+      <div style="width: 40px;"></div> <!-- Espacio para alinear título -->
+    </div>
+    
+    <div class="content">
+      <!-- Sección 1: Cocinar Maíz -->
+      <div id="cocinar-screen" class="screen active">
+        <h2 class="section-title">1. Cocinar Maíz</h2>
+        
+        <div class="input-group">
+          <label for="lote">Número de Lote</label>
+          <input type="text" id="lote" placeholder="Ingrese el número de lote" readonly>
+        </div>
+        
+        <div class="input-group">
+          <label for="olla">Número de Olla (1-9)</label>
+          <input type="number" id="olla" placeholder="Ej: 1" min="1" max="9">
+          <div class="ollas-disponibles" id="ollas-disponibles"></div>
+        </div>
+        
+        <div class="button-group">
+          <button id="iniciar-coccion">
+            <i class="fas fa-play"></i> Iniciar Cocción
+          </button>
+          <button id="finalizar-coccion" disabled>
+            <i class="fas fa-stop"></i> Finalizar Cocción
+          </button>
+        </div>
+        
+        <div id="info-coccion" class="time-info" style="display: none;">
+          <div class="time-row">
+            <div class="time-label">Inicio Cocción:</div>
+            <div class="time-value" id="inicio-coccion"></div>
+          </div>
+          <div class="time-row">
+            <div class="time-label">Fin Cocción:</div>
+            <div class="time-value" id="fin-coccion"></div>
+          </div>
+          <div class="time-row">
+            <div class="time-label">Duración:</div>
+            <div class="time-value" id="duracion-coccion"></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sección 2: Formado de Arepas -->
+      <div id="formado-screen" class="screen">
+        <h2 class="section-title">2. Formado de Arepas</h2>
+        
+        <div class="producto-item">
+          <div class="time-row">
+            <div class="time-label">Lote:</div>
+            <div class="time-value" id="lote-formado"></div>
+          </div>
+          <div class="time-row">
+            <div class="time-label">Olla:</div>
+            <div class="time-value" id="olla-formado"></div>
+          </div>
+        </div>
+        
+        <div class="input-group">
+          <label for="producto">Tipo de Arepa</label>
+          <select id="producto">
+            <option value="">Seleccione el producto</option>
+            <option value="Arecachapa x 5">Arecachapa x 5</option>
+            <option value="Con queso x 5">Con queso x 5</option>
+            <option value="Blanca Delgada x 20">Blanca Delgada x 20</option>
+            <option value="Cachapa x 5">Cachapa x 5</option>
+            <option value="Chócolo x 5">Chócolo x 5</option>
+            <option value="Mote x 5">Mote x 5</option>
+            <option value="Pequeña x 14">Pequeña x 14</option>
+            <option value="Rellena de Queso x 4">Rellena de Queso x 4</option>
+            <option value="Tradicional Blanca x 6">Tradicional Blanca x 6</option>
+            <option value="Amarilla Delgada x 20">Amarilla Delgada x 20</option>
+            <option value="Yuca x 4">Yuca x 4</option>
+            <option value="Tradicional Amarilla x 6">Tradicional Amarilla x 6</option>
+            <option value="Moneda x 90">Moneda x 90</option>
+            <option value="Pelada x 5">Pelada x 5</option>
+          </select>
+        </div>
+        
+        <div class="button-group">
+          <button id="iniciar-formado">
+            <i class="fas fa-play"></i> Iniciar Formado
+          </button>
+        </div>
+        
+        <div id="info-formado" class="time-info" style="display: none;">
+          <div class="time-row">
+            <div class="time-label">Inicio Formado:</div>
+            <div class="time-value" id="inicio-formado"></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sección 3: Área de Empaque -->
+      <div id="empaque-screen" class="screen">
+        <h2 class="section-title">3. Área de Empaque</h2>
+        
+        <div class="producto-item">
+          <div class="time-row">
+            <div class="time-label">Lote:</div>
+            <div class="time-value" id="lote-empaque"></div>
+          </div>
+          <div class="time-row">
+            <div class="time-label">Olla:</div>
+            <div class="time-value" id="olla-empaque"></div>
+          </div>
+          <div class="time-row">
+            <div class="time-label">Producto:</div>
+            <div class="time-value" id="producto-empaque"></div>
+          </div>
+          <div class="time-row">
+            <div class="time-label">Tiempo Formado:</div>
+            <div class="time-value" id="tiempo-formado-empaque"></div>
+          </div>
+        </div>
+        
+        <div class="input-group">
+          <label for="cantidad-empaque">Cantidad Producida</label>
+          <input type="number" id="cantidad-empaque" placeholder="Ej: 150" min="1">
+        </div>
+        
+        <div class="button-group">
+          <button id="finalizar-proceso">
+            <i class="fas fa-flag-checkered"></i> Finalizar Proceso
+          </button>
+          <button id="guardar-proceso" class="btn-success" disabled>
+            <i class="fas fa-save"></i> Guardar
+          </button>
+        </div>
+        
+        <div id="info-empaque" class="time-info" style="display: none;">
+          <div class="time-row">
+            <div class="time-label">Inicio Formado:</div>
+            <div class="time-value" id="inicio-formado-display"></div>
+          </div>
+          <div class="time-row">
+            <div class="time-label">Fin Proceso:</div>
+            <div class="time-value" id="fin-empaque"></div>
+          </div>
+          <div class="time-row">
+            <div class="time-label">Duración Total:</div>
+            <div class="time-value" id="duracion-total"></div>
+          </div>
+          <div class="time-row">
+            <div class="time-label">Cantidad:</div>
+            <div class="time-value" id="cantidad-final"></div>
+          </div>
+        </div>
+
+        <button id="reiniciar-ollas" class="export-btn btn-warning">
+          <i class="fas fa-sync-alt"></i> Reiniciar Ollas del Día
+        </button>
+        <button id="exportar-excel" class="export-btn">
+          <i class="fas fa-file-excel"></i> Exportar a Excel
+        </button>
+        <button id="ver-historico" class="export-btn btn-success">
+          <i class="fas fa-history"></i> Ver Histórico
+        </button>
+      </div>
+      
+      <!-- Sección 4: Histórico de Producción -->
+      <div id="historico-screen" class="screen">
+        <h2 class="section-title">
+          <span>Histórico de Producción</span>
+          <button id="cerrar-historico" style="background: var(--color-danger); padding: 3px 8px; font-size: 12px;">
+            <i class="fas fa-times"></i> Cerrar
+          </button>
+        </h2>
+        
+        <div class="search-container">
+          <input type="text" id="buscar-historico" placeholder="Buscar por lote, producto, etc.">
+        </div>
+        
+        <div class="filters">
+          <select id="filter-fecha" class="filter-select">
+            <option value="">Todas las fechas</option>
+          </select>
+          <select id="filter-producto" class="filter-select">
+            <option value="">Todos los productos</option>
+            <option value="Arecachapa x 5">Arecachapa x 5</option>
+            <option value="Con queso x 5">Con queso x 5</option>
+            <option value="Blanca Delgada x 20">Blanca Delgada x 20</option>
+            <option value="Cachapa x 5">Cachapa x 5</option>
+            <option value="Chócolo x 5">Chócolo x 5</option>
+            <option value="Mote x 5">Mote x 5</option>
+            <option value="Pequeña x 14">Pequeña x 14</option>
+            <option value="Rellena de Queso x 4">Rellena de Queso x 4</option>
+            <option value="Tradicional Blanca x 6">Tradicional Blanca x 6</option>
+            <option value="Amarilla Delgada x 20">Amarilla Delgada x 20</option>
+            <option value="Yuca x 4">Yuca x 4</option>
+            <option value="Tradicional Amarilla x 6">Tradicional Amarilla x 6</option>
+            <option value="Moneda x 90">Moneda x 90</option>
+            <option value="Pelada x 5">Pelada x 5</option>
+          </select>
+        </div>
+        
+        <div id="historico-lista"></div>
+        
+        <div id="sin-resultados" style="text-align: center; padding: 20px; display: none;">
+          <i class="fas fa-search" style="font-size: 24px; color: #777; margin-bottom: 10px;"></i>
+          <p>No se encontraron registros que coincidan con la búsqueda</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="nav-bar">
+      <div class="nav-item active" data-screen="cocinar">
+        <div class="nav-icon">🌽</div>
+        <div>Cocinar Maíz</div>
+      </div>
+      <div class="nav-item" data-screen="formado">
+        <div class="nav-icon">👐</div>
+        <div>Formado</div>
+      </div>
+      <div class="nav-item" data-screen="empaque">
+        <div class="nav-icon">📦</div>
+        <div>Empaque</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Datos para exportar a Excel (guardados en localStorage)
+    let registros = JSON.parse(localStorage.getItem('registrosArepas')) || [];
+    let inicioFormado;
+    let inicioCoccion, finCoccion;
+    let finEmpaque;
+    let currentLote = '';
+    let currentOlla = '';
+    
+    // Gestión de lotes
+    let ultimoLote = localStorage.getItem('ultimoLote');
+    if (!ultimoLote) {
+      ultimoLote = "J1999"; // Valor inicial
+      localStorage.setItem('ultimoLote', ultimoLote);
+    }
+
+    // Función para generar el siguiente lote
+    function generarSiguienteLote() {
+      const numero = parseInt(ultimoLote.substring(1)) + 1;
+      return 'J' + numero;
+    }
+
+    // Gestión de ollas (1-9)
+    const totalOllas = 9;
+    let ollasUsadas = JSON.parse(localStorage.getItem('ollasUsadas')) || [];
+    let ollasUsadasHoy = JSON.parse(localStorage.getItem('ollasUsadasHoy')) || [];
+
+    // Mostrar notificación
+    function mostrarNotificacion(mensaje, tipo = 'success') {
+      const notification = document.createElement('div');
+      notification.className = `notification ${tipo}`;
+      notification.innerHTML = `
+        <i class="fas fa-${tipo === 'error' ? 'exclamation-circle' : tipo === 'warning' ? 'exclamation-triangle' : 'check-circle'}"></i>
+        ${mensaje}
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // Eliminar después de la animación
+      setTimeout(() => {
+        notification.remove();
+      }, 3500);
+    }
+
+    // Mostrar ollas usadas con interacción
+    function actualizarOllasUsadas() {
+      const ollasInfo = document.getElementById('ollas-disponibles');
+      ollasInfo.innerHTML = '';
+      
+      const titulo = document.createElement('div');
+      titulo.textContent = 'Ollas usadas hoy:';
+      titulo.style.fontWeight = 'bold';
+      titulo.style.marginBottom = '5px';
+      ollasInfo.appendChild(titulo);
+      
+      const container = document.createElement('div');
+      container.style.display = 'flex';
+      container.style.flexWrap = 'wrap';
+      container.style.gap = '5px';
+      
+      for (let i = 1; i <= totalOllas; i++) {
+        const span = document.createElement('span');
+        span.textContent = i;
+        span.style.padding = '2px 8px';
+        span.style.borderRadius = '10px';
+        
+        if (ollasUsadasHoy.includes(i)) {
+          span.classList.add('olla-usada');
+          span.style.backgroundColor = '#ffebee';
+        } else {
+          span.classList.add('olla-disponible');
+          span.style.backgroundColor = '#e8f5e9';
+          span.style.cursor = 'pointer';
+          span.addEventListener('click', () => {
+            document.getElementById('olla').value = i;
+            mostrarNotificacion(`Olla ${i} seleccionada`);
+          });
+        }
+        
+        container.appendChild(span);
+      }
+      
+      ollasInfo.appendChild(container);
+    }
+
+    // Navegación entre pantallas
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+        document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+        
+        this.classList.add('active');
+        const screenId = this.getAttribute('data-screen') + '-screen';
+        const screen = document.getElementById(screenId);
+        screen.classList.add('active');
+        
+        // Actualizar color del app-bar
+        document.querySelector('.app-bar').style.backgroundColor = 
+          getComputedStyle(screen).getPropertyValue('--color-primario');
+        
+        // Actualizar datos en pantallas
+        actualizarDatosCompartidos();
+      });
+    });
+
+    // Actualizar datos compartidos entre pantallas (MODIFICADO para no llevar duración de cocción)
+    function actualizarDatosCompartidos() {
+      const lote = document.getElementById('lote').value;
+      const olla = document.getElementById('olla').value;
+      const producto = document.getElementById('producto').value;
+      
+      // Guardar el lote actual
+      if (lote) currentLote = lote;
+      if (olla) currentOlla = olla;
+      
+      // Actualizar Formado (solo lote y olla)
+      document.getElementById('lote-formado').textContent = currentLote;
+      document.getElementById('olla-formado').textContent = currentOlla ? `Olla ${currentOlla}` : '';
+      
+      // Actualizar Empaque (lote, olla y producto)
+      document.getElementById('lote-empaque').textContent = currentLote;
+      document.getElementById('olla-empaque').textContent = currentOlla ? `Olla ${currentOlla}` : '';
+      document.getElementById('producto-empaque').textContent = producto || '';
+      document.getElementById('tiempo-formado-empaque').textContent = 
+        document.getElementById('inicio-formado').textContent ? 
+        `Iniciado: ${document.getElementById('inicio-formado').textContent}` : '--';
+    }
+
+    // Formatear fecha a DD/MM/AAAA HH:MM:SS
+    function formatDateTime(date) {
+      if (!date) return "--:--:--";
+      const dia = date.getDate().toString().padStart(2, '0');
+      const mes = (date.getMonth() + 1).toString().padStart(2, '0');
+      const año = date.getFullYear();
+      const horas = date.getHours().toString().padStart(2, '0');
+      const minutos = date.getMinutes().toString().padStart(2, '0');
+      const segundos = date.getSeconds().toString().padStart(2, '0');
+      return `${dia}/${mes}/${año} ${horas}:${minutos}:${segundos}`;
+    }
+
+    // Calcular duración en formato "X minutos Y segundos"
+    function calcularDuracion(inicio, fin) {
+      if (!inicio || !fin) return "--";
+      const segundos = Math.floor((fin - inicio) / 1000);
+      const minutos = Math.floor(segundos / 60);
+      const segundosRestantes = segundos % 60;
+      return `${minutos} minutos ${segundosRestantes} segundos`;
+    }
+
+    // Cocinar Maíz
+    document.getElementById('iniciar-coccion').addEventListener('click', function() {
+      const ollaSeleccionada = parseInt(document.getElementById('olla').value);
+      if (!ollaSeleccionada || ollaSeleccionada < 1 || ollaSeleccionada > 9) {
+        mostrarNotificacion("Ingrese un número de olla válido (1-9)", "error");
+        return;
+      }
+      
+      // Verificar si la olla ya fue usada hoy
+      if (ollasUsadasHoy.includes(ollaSeleccionada)) {
+        mostrarNotificacion(`La olla ${ollaSeleccionada} ya fue utilizada hoy`, "warning");
+        return;
+      }
+      
+      // Marcar olla como usada
+      ollasUsadasHoy.push(ollaSeleccionada);
+      localStorage.setItem('ollasUsadasHoy', JSON.stringify(ollasUsadasHoy));
+      actualizarOllasUsadas();
+      
+      inicioCoccion = new Date();
+      document.getElementById('inicio-coccion').textContent = formatDateTime(inicioCoccion);
+      document.getElementById('info-coccion').style.display = 'block';
+      document.getElementById('finalizar-coccion').disabled = false;
+      this.disabled = true;
+      
+      // Guardar el lote actual
+      currentLote = document.getElementById('lote').value;
+      currentOlla = ollaSeleccionada;
+      actualizarDatosCompartidos();
+      
+      mostrarNotificacion(`Cocción iniciada para lote ${currentLote} en olla ${currentOlla}`);
+    });
+
+    document.getElementById('finalizar-coccion').addEventListener('click', function() {
+      finCoccion = new Date();
+      document.getElementById('fin-coccion').textContent = formatDateTime(finCoccion);
+      document.getElementById('duracion-coccion').textContent = calcularDuracion(inicioCoccion, finCoccion);
+      this.disabled = true;
+      
+      mostrarNotificacion(`Cocción finalizada después de ${document.getElementById('duracion-coccion').textContent}`);
+    });
+
+    // Formado de Arepas
+    document.getElementById('iniciar-formado').addEventListener('click', function() {
+      if (!document.getElementById('producto').value) {
+        mostrarNotificacion("Seleccione el tipo de arepa", "error");
+        return;
+      }
+      
+      inicioFormado = new Date();
+      document.getElementById('inicio-formado').textContent = formatDateTime(inicioFormado);
+      document.getElementById('info-formado').style.display = 'block';
+      this.disabled = true;
+      
+      // Actualizar también en empaque
+      document.getElementById('inicio-formado-display').textContent = formatDateTime(inicioFormado);
+      document.getElementById('tiempo-formado-empaque').textContent = `Iniciado: ${formatDateTime(inicioFormado)}`;
+      
+      actualizarDatosCompartidos();
+      
+      mostrarNotificacion(`Formado iniciado para ${document.getElementById('producto').value}`);
+    });
+
+    // Finalizar Proceso en Área de Empaque
+    document.getElementById('finalizar-proceso').addEventListener('click', function() {
+      if (!inicioFormado) {
+        mostrarNotificacion("Complete todas las etapas del proceso", "error");
+        return;
+      }
+      
+      const cantidad = document.getElementById('cantidad-empaque').value;
+      
+      if (!cantidad) {
+        mostrarNotificacion("Ingrese la cantidad producida", "error");
+        return;
+      }
+      
+      finEmpaque = new Date();
+      
+      // Calcular duración total
+      const duracionTotal = calcularDuracion(inicioFormado, finEmpaque);
+      
+      // Mostrar información
+      document.getElementById('fin-empaque').textContent = formatDateTime(finEmpaque);
+      document.getElementById('duracion-total').textContent = duracionTotal;
+      document.getElementById('cantidad-final').textContent = cantidad + " unidades";
+      document.getElementById('info-empaque').style.display = 'block';
+      
+      // Habilitar botón de guardar
+      document.getElementById('guardar-proceso').disabled = false;
+      this.disabled = true;
+      
+      mostrarNotificacion(`Proceso listo para guardar. Cantidad: ${cantidad} unidades`);
+    });
+
+    // Guardar Proceso
+    document.getElementById('guardar-proceso').addEventListener('click', function() {
+      // Mostrar loader
+      const originalText = this.innerHTML;
+      this.innerHTML = `<i class="fas fa-spinner loader"></i> Guardando...`;
+      this.disabled = true;
+      
+      setTimeout(() => {
+        // Guardar registro
+        const registro = {
+          'Fecha': new Date().toISOString().split('T')[0],
+          'Lote': currentLote || document.getElementById('lote').value || "No especificado",
+          'Olla': currentOlla || document.getElementById('olla').value || "No especificado",
+          'Producto': document.getElementById('producto').value || "No especificado",
+          'Inicio Cocción': document.getElementById('inicio-coccion').textContent || "--:--:--",
+          'Fin Cocción': document.getElementById('fin-coccion').textContent || "--:--:--",
+          'Duración Cocción': document.getElementById('duracion-coccion').textContent || "--",
+          'Inicio Formado': document.getElementById('inicio-formado').textContent || "--:--:--",
+          'Fin Proceso': formatDateTime(finEmpaque),
+          'Duración Total': document.getElementById('duracion-total').textContent,
+          'Cantidad': document.getElementById('cantidad-final').textContent
+        };
+        
+        registros.push(registro);
+        localStorage.setItem('registrosArepas', JSON.stringify(registros));
+        
+        // Guardar ollas usadas en el historial
+        ollasUsadas = [...new Set([...ollasUsadas, ...ollasUsadasHoy])];
+        localStorage.setItem('ollasUsadas', JSON.stringify(ollasUsadas));
+        
+        // Generar y guardar el próximo número de lote
+        ultimoLote = generarSiguienteLote();
+        localStorage.setItem('ultimoLote', ultimoLote);
+        
+        // Reiniciar el formulario para nuevo proceso
+        document.getElementById('lote').value = ultimoLote;
+        currentLote = ultimoLote;
+        document.getElementById('olla').value = '';
+        document.getElementById('producto').value = '';
+        document.getElementById('cantidad-empaque').value = '';
+        
+        // Resetear tiempos
+        inicioCoccion = null;
+        finCoccion = null;
+        inicioFormado = null;
+        finEmpaque = null;
+        
+        // Habilitar/deshabilitar botones
+        document.getElementById('iniciar-coccion').disabled = false;
+        document.getElementById('finalizar-coccion').disabled = true;
+        document.getElementById('iniciar-formado').disabled = false;
+        document.getElementById('finalizar-proceso').disabled = false;
+        this.disabled = true;
+        this.innerHTML = originalText;
+        
+        // Ocultar secciones de info
+        document.getElementById('info-coccion').style.display = 'none';
+        document.getElementById('info-formado').style.display = 'none';
+        document.getElementById('info-empaque').style.display = 'none';
+        
+        // Volver a la pantalla inicial
+        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+        document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+        document.querySelector('[data-screen="cocinar"]').classList.add('active');
+        document.getElementById('cocinar-screen').classList.add('active');
+        document.querySelector('.app-bar').style.backgroundColor = '#4CAF50';
+        
+        mostrarNotificacion(`Proceso guardado. Nuevo lote: ${ultimoLote}`);
+      }, 1000);
+    });
+
+    // Reiniciar ollas del día
+    function reiniciarOllasDelDia() {
+      if (confirm("¿Está seguro que desea reiniciar las ollas usadas hoy? Esto permitirá reutilizar todas las ollas para un nuevo proceso.")) {
+        ollasUsadasHoy = [];
+        localStorage.setItem('ollasUsadasHoy', JSON.stringify(ollasUsadasHoy));
+        actualizarOllasUsadas();
+        mostrarNotificacion("Ollas reiniciadas. Ahora puede usar cualquier olla nuevamente.");
+      }
+    }
+
+    // Exportar a Excel
+    document.getElementById('exportar-excel').addEventListener('click', function() {
+      registros = JSON.parse(localStorage.getItem('registrosArepas')) || [];
+      
+      if (registros.length === 0) {
+        mostrarNotificacion("No hay procesos completados para exportar", "warning");
+        return;
+      }
+      
+      // Mostrar loader
+      const originalText = this.innerHTML;
+      this.innerHTML = `<i class="fas fa-spinner loader"></i> Exportando...`;
+      this.disabled = true;
+      
+      setTimeout(() => {
+        // Ordenar registros por fecha (más reciente primero)
+        registros.sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
+        
+        // Crear hoja de trabajo
+        const ws = XLSX.utils.json_to_sheet(registros);
+        
+        // Añadir estilo de ancho de columnas y filtros
+        ws['!cols'] = [
+          {wch: 10},  // Fecha
+          {wch: 12},  // Lote
+          {wch: 8},   // Olla
+          {wch: 20},  // Producto
+          {wch: 20},  // Inicio Cocción
+          {wch: 20},  // Fin Cocción
+          {wch: 18},  // Duración Cocción
+          {wch: 20},  // Inicio Formado
+          {wch: 20},  // Fin Proceso
+          {wch: 18},  // Duración Total
+          {wch: 12}   // Cantidad
+        ];
+        
+        // Añadir filtros
+        ws['!autofilter'] = {ref: "A1:K1"};
+        
+        // Crear libro de trabajo
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Trazabilidad Arepas");
+        
+        // Establecer propiedades del documento
+        wb.Props = {
+          Title: "Trazabilidad del Proceso de Arepas",
+          Subject: "Registros de producción",
+          Author: "Sistema de Trazabilidad",
+          CreatedDate: new Date()
+        };
+        
+        // Exportar archivo
+        const fecha = new Date().toISOString().slice(0, 10);
+        XLSX.writeFile(wb, `Trazabilidad_Arepas_${fecha}.xlsx`);
+        
+        this.innerHTML = originalText;
+        this.disabled = false;
+      }, 500);
+    });
+
+    // Mostrar histórico
+    function cargarHistorico() {
+      registros = JSON.parse(localStorage.getItem('registrosArepas')) || [];
+      
+      if (registros.length === 0) {
+        document.getElementById('sin-resultados').style.display = 'block';
+        document.getElementById('historico-lista').innerHTML = '';
+        return;
+      }
+      
+      // Ordenar por fecha más reciente primero
+      registros.sort((a, b) => new Date(b.Fecha + ' ' + (b['Fin Proceso'] || '23:59:59')) - 
+                               new Date(a.Fecha + ' ' + (a['Fin Proceso'] || '23:59:59')));
+      
+      // Filtrar por búsqueda
+      const busqueda = document.getElementById('buscar-historico').value.toLowerCase();
+      const filtroFecha = document.getElementById('filter-fecha').value;
+      const filtroProducto = document.getElementById('filter-producto').value;
+      
+      const registrosFiltrados = registros.filter(registro => {
+        const cumpleBusqueda = !busqueda || 
+          (registro.Lote && registro.Lote.toLowerCase().includes(busqueda)) ||
+          (registro.Producto && registro.Producto.toLowerCase().includes(busqueda));
+        
+        const cumpleFecha = !filtroFecha || registro.Fecha === filtroFecha;
+        const cumpleProducto = !filtroProducto || registro.Producto === filtroProducto;
+        
+        return cumpleBusqueda && cumpleFecha && cumpleProducto;
+      });
+      
+      if (registrosFiltrados.length === 0) {
+        document.getElementById('sin-resultados').style.display = 'block';
+        document.getElementById('historico-lista').innerHTML = '';
+      } else {
+        document.getElementById('sin-resultados').style.display = 'none';
+        
+        let html = '';
+        registrosFiltrados.forEach(registro => {
+          html += `
+            <div class="registro-item">
+              <div class="registro-header">
+                <span>Lote: ${registro.Lote}</span>
+                <span>${registro.Fecha}</span>
+              </div>
+              <div class="registro-detail">
+                <div class="registro-label">Producto:</div>
+                <div>${registro.Producto}</div>
+              </div>
+              <div class="registro-detail">
+                <div class="registro-label">Olla:</div>
+                <div>${registro.Olla}</div>
+              </div>
+              <div class="registro-detail">
+                <div class="registro-label">Cantidad:</div>
+                <div>${registro.Cantidad}</div>
+              </div>
+              <div class="registro-detail">
+                <div class="registro-label">Duración:</div>
+                <div>${registro['Duración Total']}</div>
+              </div>
+            </div>
+          `;
+        });
+        
+        document.getElementById('historico-lista').innerHTML = html;
+      }
+    }
+    
+    // Cargar filtros de fecha
+    function cargarFiltrosFecha() {
+      const selectFecha = document.getElementById('filter-fecha');
+      selectFecha.innerHTML = '<option value="">Todas las fechas</option>';
+      
+      const fechasUnicas = [...new Set(registros.map(r => r.Fecha))].sort((a, b) => new Date(b) - new Date(a));
+      
+      fechasUnicas.forEach(fecha => {
+        const option = document.createElement('option');
+        option.value = fecha;
+        option.textContent = fecha;
+        selectFecha.appendChild(option);
+      });
+    }
+
+    // Ver histórico
+    document.getElementById('ver-historico').addEventListener('click', function() {
+      document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+      document.getElementById('historico-screen').classList.add('active');
+      document.querySelector('.app-bar').style.backgroundColor = getComputedStyle(document.getElementById('historico-screen')).getPropertyValue('--color-primario');
+      
+      cargarHistorico();
+      cargarFiltrosFecha();
+    });
+    
+    // Cerrar histórico
+    document.getElementById('cerrar-historico').addEventListener('click', function() {
+      document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+      document.getElementById('empaque-screen').classList.add('active');
+      document.querySelector('.app-bar').style.backgroundColor = getComputedStyle(document.getElementById('empaque-screen')).getPropertyValue('--color-primario');
+      
+      document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+      document.querySelector('[data-screen="empaque"]').classList.add('active');
+    });
+    
+    // Buscar en histórico
+    document.getElementById('buscar-historico').addEventListener('input', cargarHistorico);
+    document.getElementById('filter-fecha').addEventListener('change', cargarHistorico);
+    document.getElementById('filter-producto').addEventListener('change', cargarHistorico);
+
+    // Verificar si es un nuevo día para reiniciar ollas automáticamente
+    function verificarNuevoDia() {
+      const ultimaFecha = localStorage.getItem('ultimaFechaUso');
+      const hoy = new Date().toISOString().split('T')[0];
+      
+      if (ultimaFecha !== hoy) {
+        localStorage.setItem('ultimaFechaUso', hoy);
+        ollasUsadasHoy = [];
+        localStorage.setItem('ollasUsadasHoy', JSON.stringify(ollasUsadasHoy));
+        actualizarOllasUsadas();
+      }
+    }
+
+    // Toggle modo oscuro
+    document.getElementById('theme-toggle').addEventListener('click', function() {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      localStorage.setItem('darkMode', isDark);
+      
+      if (isDark) {
+        this.innerHTML = '<i class="fas fa-sun"></i>';
+        mostrarNotificacion("Modo oscuro activado");
+      } else {
+        this.innerHTML = '<i class="fas fa-moon"></i>';
+        mostrarNotificacion("Modo claro activado");
+      }
+    });
+
+    // Inicializar la aplicación
+    window.addEventListener('load', function() {
+      verificarNuevoDia();
+      
+      // Cargar modo oscuro
+      if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('theme-toggle').innerHTML = '<i class="fas fa-sun"></i>';
+      }
+      
+      // Mostrar ollas usadas hoy
+      actualizarOllasUsadas();
+      
+      // Establecer el lote automáticamente
+      document.getElementById('lote').value = ultimoLote;
+      currentLote = ultimoLote;
+      
+      actualizarDatosCompartidos();
+    });
+
+    // Evento para reiniciar ollas del día
+    document.getElementById('reiniciar-ollas').addEventListener('click', reiniciarOllasDelDia);
+  </script>
+</body>
+</html>
